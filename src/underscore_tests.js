@@ -175,17 +175,41 @@ var _ = { };
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     for (var i in collection) {
-      if (!iterator(collection[i])) {
-        return false;
-        break;
+      if (!iterator) {
+        if (!collection[i]) {
+          return false;
+          break;
+        }
+      } else {
+        if (!iterator(collection[i])) {
+          return false;
+          break;
+        }
       }
     }
     return true;
   };
 
+
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
+    if (!iterator) {
+      iterator = function (item) {
+        if (item) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
+    for (var i in collection) {
+      if (iterator(collection[i])) {
+        return true;
+        break;
+      }
+    }
+    return false;
   };
 
 
@@ -198,12 +222,28 @@ var _ = { };
 
   // Extend a given object with all the properties of the passed in
   // object(s).
-  _.extend = function(obj) {
+  _.extend = function() {
+    var newObj= {};
+    for (var i = 0; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        newObj[key] = arguments[i][key];
+      }
+    }
+    return newObj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var newObj = {};
+    for (var i = 0; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if(!(key in newObj)) {
+          newObj[key] = arguments[i][key];
+        }
+      }
+    }
+    return newObj;
   };
 
 
@@ -215,6 +255,16 @@ var _ = { };
   // Return a function that can be called at most one time. Subsequent calls
   // should return the previously returned value.
   _.once = function(func) {
+    var flag = false;
+    var ans;
+    return function () {
+      if (flag) {
+        return ans;
+      } else {
+        flag = true;
+        return ans = func();
+      }
+    };
   };
 
   // Memoize an expensive function by storing its results. You may assume
@@ -224,6 +274,14 @@ var _ = { };
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var memory = {};
+    return function (arg) {
+      if (arg in memory) {
+        return memory[arg];
+      } else {
+        return memory[arg] = func(arg);
+      }
+    }
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -233,6 +291,10 @@ var _ = { };
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments,2);
+    setTimeout(function () {
+      func.apply(null,args);
+    } ,wait);
   };
 
 
