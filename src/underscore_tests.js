@@ -301,6 +301,12 @@ var _ = { };
 
   // Shuffle an array.
   _.shuffle = function(array) {
+    var newArr = [];
+    for (var i = array.length; i > 0; i--) {
+      var ind = Math.floor(Math.random() * i);
+      newArr.push(array.splice(i,1));
+    }
+    return newArr;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -308,6 +314,22 @@ var _ = { };
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    var newArr = [];
+    newArr = collection.sort(function (a,b) {
+      if (typeof iterator === 'function') {
+          if(iterator(a) > iterator (b)) {
+            return 1;
+          } else {
+            return -1
+          }
+      }
+      if (a[iterator] > b[iterator]) {
+        return 1;
+      } else {
+        return -1;
+      }
+    })
+    return newArr;
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -316,21 +338,79 @@ var _ = { };
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var longest = 0;
+    for (var i = arguments.length-1; i >= 0; i--) {
+      if (arguments[i].length > longest) {
+        longest = arguments[i].length;
+      }
+    }
+    var newArr = [];
+    for (var i = 0; i < longest; i++) {
+      var temp = [];
+      for (var ind = 0; ind < arguments.length; ind++) {
+        temp.push(arguments[ind][i]);
+        console.log(temp);
+      }
+      newArr.push(temp);
+    }
+    return newArr;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   _.flatten = function(nestedArray, result) {
+    var newArr = [];
+    var arrAdder = function (arr) {
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i].constructor === Array) {
+          arrAdder(arr[i]);
+        } else {
+          newArr.push(arr[i])
+        }
+      }
+    }
+    for (var i = 0; i < nestedArray.length; i++) {
+      if (nestedArray[i].constructor === Array) {
+        arrAdder(nestedArray[i]);
+      } else {
+        newArr.push(nestedArray[i]);
+      }
+    }
+    return newArr;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
   // every item shared between all the passed-in arrays.
   _.intersection = function() {
+    var num = arguments.length;
+    var newArr = [];
+    for (var i  = 0; i < arguments[0].length; i++) {
+      var flag = true;
+      for (var ind = 0; ind < arguments.length;ind++) {
+        if(arguments[ind].indexOf(arguments[0][i]) === -1) {
+          flag = false;
+          break;
+        }
+      }
+      if (flag) {
+        newArr.push(arguments[0][i]);
+      }
+    }
+    return newArr;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
+    var subArrays = Array.prototype.slice.call(arguments,1);
+    subArrays = this.flatten(subArrays);
+    var newArr = [];
+    for (var i = 0; i < arguments[0].length; i++) {
+      if(subArrays.indexOf(arguments[0][i]) === -1) {
+        newArr.push(arguments[0][i]);
+      }
+    }
+    return newArr;
   };
 
 }).call(this);
